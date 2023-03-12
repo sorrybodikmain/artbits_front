@@ -1,26 +1,43 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import {createTheme, getDocumentTheme, NextUIProvider} from '@nextui-org/react'
+import React, {useEffect, useState} from 'react'
+import Layout from './components/Layout'
+import AppHeader from '@/components/app/AppHeader'
+import AppRouter from "./routes/AppRouter";
+import AppFooter from "@/components/app/AppFooter";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+const lightTheme = createTheme({
+	type: 'light'
+})
+const darkTheme = createTheme({
+	type: 'dark'
+})
+
+export const App = () => {
+	const [isDark, setIsDark] = useState(false)
+
+	useEffect(() => {
+		const theme = window.localStorage.getItem('data-theme')
+		setIsDark(theme === 'dark')
+		const observer = new MutationObserver(() => {
+			const newTheme = getDocumentTheme(document?.documentElement)
+			setIsDark(newTheme === 'dark')
+		})
+		observer.observe(document?.documentElement, {
+			attributes: true,
+			attributeFilter: ['data-theme', 'style']
+		})
+		return () => observer.disconnect()
+	}, [])
+
+	return (
+		<NextUIProvider theme={isDark ? darkTheme : lightTheme}>
+			<Layout>
+				<AppHeader/>
+				<AppRouter/>
+				<AppFooter/>
+			</Layout>
+		</NextUIProvider>
+	)
 }
 
-export default App;
+export default App
